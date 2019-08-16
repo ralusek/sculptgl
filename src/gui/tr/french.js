@@ -8,7 +8,7 @@ var TR = {
   // camera
   cameraTitle: 'Caméra',
   cameraReset: 'Vue',
-  cameraCenter: 'Reinitialiser (bar)',
+  cameraCenter: 'Reset (bar)',
   cameraFront: 'De face (F)',
   cameraLeft: 'De gauche (L)',
   cameraTop: 'De haut (T)',
@@ -34,6 +34,12 @@ var TR = {
   fileExportOBJ: 'Sauver .obj',
   fileExportPLY: 'Sauver .ply',
   fileExportSTL: 'Sauver .stl',
+
+  fileExportTextureTitle: null,
+  fileExportTextureSize: null,
+  fileExportColor: null,
+  fileExportRoughness: null,
+  fileExportMetalness: null,
 
   // scene
   sceneTitle: 'Scène',
@@ -63,8 +69,8 @@ var TR = {
   multiresResolution: 'Résolution',
   multiresNoLower: 'Il n\'y a pas de niveau de résolution inférieur.',
   multiresNoHigher: 'Il n\'y a pas de niveau de résolution plus élevé.',
-  multiresDelHigher: 'Supprimer niveau supérieur',
-  multiresDelLower: 'Supprimer niveau inférieur',
+  multiresDelHigher: 'Suppression supérieur',
+  multiresDelLower: 'Suppression inférieur',
   multiresSelectLowest: 'Sélectionnez la résolution la plus basse avant d\'inverser.',
   multiresSelectHighest: 'Sélectionnez la résolution la plus élevée avant de subdiviser.',
   multiresWarnBigMesh: function (nbFacesNext) {
@@ -120,13 +126,13 @@ var TR = {
   sculptRoughness: 'Rugosité',
   sculptMetallic: 'Métallique',
   sculptClay: 'Argile',
-  sculptAccumulate: 'Accumuler (pas de limite par coup de pinceau)',
+  sculptAccumulate: 'Accumuler effet',
   sculptColorGlobal: 'Global',
   sculptPickColor: 'Matériau / selection de couleur (-S)',
   sculptTangentialSmoothing: 'Relaxer uniquement',
   sculptTopologicalCheck: 'Vérification topologique',
   sculptMoveAlongNormal: 'Extruder suivant la normale (N ou -Alt)',
-  sculptMaskingClear: 'Réinitialiser (-Ctrl + Drag)',
+  sculptMaskingClear: 'Reset (-Ctrl + Drag)',
   sculptMaskingInvert: 'Inverser (-Ctrl + Click)',
   sculptMaskingBlur: 'Brouiller',
   sculptMaskingSharpen: 'Aiguiser',
@@ -190,7 +196,6 @@ var TR = {
   sketchfabUpload: 'Uploader',
   sketchfabUploadMessage: 'Entrez votre clé d\'API sketchfab.\n',
 
-  
   sketchfabUploadError: function (error) {
     return 'Sketchfab upload error :\n' + error;
   },
@@ -204,11 +209,9 @@ var TR = {
   alphaSquare: 'Carré',
   alphaSkin: 'Peau',
 
-  envFootPrint: 'Empreinte',
-  envGlazedPatio: 'Patio glacé',
-  envNicolausChurch: 'Eglise Saint-Nicolas',
-  envTerrace: 'Terrasse',
-  envBryantPark: 'Bryant Park'
+  remeshTitleMC: 'Remaillage surfacique (manifold tris)',
+  remeshRemeshMC: 'Remaillage',
+  remeshSmoothingMC: 'Lisser topologie'
 };
 
 export default TR;

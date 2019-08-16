@@ -172,8 +172,7 @@ class SculptGL extends Scene {
     var evProxy = this._eventProxy;
     evProxy.pageX = e.center.x;
     evProxy.pageY = e.center.y;
-    this._lastNbPointers = evProxy.which = Math.min(2, e.pointers.length);
-    this.onDeviceDown(evProxy);
+    this.onPanUpdateNbPointers(Math.min(3, e.pointers.length));
   }
 
   onPanMove(e) {
@@ -182,20 +181,44 @@ class SculptGL extends Scene {
     var evProxy = this._eventProxy;
     evProxy.pageX = e.center.x;
     evProxy.pageY = e.center.y;
-    var nbPointers = Math.min(2, e.pointers.length);
+
+    var nbPointers = Math.min(3, e.pointers.length);
     if (nbPointers !== this._lastNbPointers) {
       this.onDeviceUp();
-      evProxy.which = nbPointers;
-      this.onDeviceDown(evProxy);
-      this._lastNbPointers = nbPointers;
+      this.onPanUpdateNbPointers(nbPointers);
     }
     this.onDeviceMove(evProxy);
+
+    if (this._isIOS()) {
+      window.clearTimeout(this._timerResetPointer);
+      this._timerResetPointer = window.setTimeout(function () {
+        this._lastNbPointers = 0;
+      }.bind(this), 60);
+    }
+  }
+
+  _isIOS() {
+    if (this._isIOS !== undefined) return this._isIOS;
+    this._isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    return this._isIOS;
+  }
+
+  onPanUpdateNbPointers(nbPointers) {
+    // called on panstart or panmove (not consistent)
+    var evProxy = this._eventProxy;
+    evProxy.which = nbPointers === 1 && this._lastNbPointers >= 1 ? 3 : nbPointers;
+    this._lastNbPointers = nbPointers;
+    this.onDeviceDown(evProxy);
   }
 
   onPanEnd(e) {
     if (e.pointerType === 'mouse')
       return;
     this.onDeviceUp();
+    // we need to detect when all fingers are released
+    window.setTimeout(function () {
+      if (!e.pointers.length) this._lastNbPointers = 0;
+    }.bind(this), 60);
   }
 
   onDoubleTap(e) {
@@ -248,7 +271,7 @@ class SculptGL extends Scene {
     if (meshes.length > 0) {
       var pivot = [0.0, 0.0, 0.0];
       var box = this.computeBoundingBoxMeshes(meshes);
-      var zoom = 0.4 * vec3.dist([box[0], box[1], box[2]], [box[3], box[4], box[5]]);
+      var zoom = 0.8 * this.computeRadiusFromBoundingBox(box);
       zoom *= this._camera.computeFrustumFit();
       vec3.set(pivot, (box[0] + box[3]) * 0.5, (box[1] + box[4]) * 0.5, (box[2] + box[5]) * 0.5);
       this._camera.setAndFocusOnPivot(pivot, zoom);
@@ -432,6 +455,10 @@ class SculptGL extends Scene {
     this._lastMouseY = mouseY;
   }
 
+  getSpeedFactor() {
+    return this._cameraSpeed / (this._canvasHeight * this.getPixelRatio());
+  }
+
   onDeviceMove(event) {
     if (this._focusGui)
       return;
@@ -440,17 +467,18 @@ class SculptGL extends Scene {
     var mouseX = this._mouseX;
     var mouseY = this._mouseY;
     var action = this._action;
+    var speedFactor = this.getSpeedFactor();
 
     if (action === Enums.Action.CAMERA_ZOOM || (action === Enums.Action.CAMERA_PAN_ZOOM_ALT && !event.altKey)) {
 
       Multimesh.RENDER_HINT = Multimesh.CAMERA;
-      this._camera.zoom((mouseX - this._lastMouseX + mouseY - this._lastMouseY) / 1000);
+      this._camera.zoom((mouseX - this._lastMouseX + mouseY - this._lastMouseY) * speedFactor);
       this.render();
 
     } else if (action === Enums.Action.CAMERA_PAN_ZOOM_ALT || action === Enums.Action.CAMERA_PAN) {
 
       Multimesh.RENDER_HINT = Multimesh.CAMERA;
-      this._camera.translate((mouseX - this._lastMouseX) / 1000, (mouseY - this._lastMouseY) / 1000);
+      this._camera.translate((mouseX - this._lastMouseX) * speedFactor, (mouseY - this._lastMouseY) * speedFactor);
       this.render();
 
     } else if (action === Enums.Action.CAMERA_ROTATE) {

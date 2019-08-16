@@ -35,6 +35,12 @@ var TR = {
   fileExportPLY: 'Kaydet .ply',
   fileExportSTL: 'Kaydet .stl',
 
+  fileExportTextureTitle: null,
+  fileExportTextureSize: null,
+  fileExportColor: null,
+  fileExportRoughness: null,
+  fileExportMetalness: null,
+
   // scene
   sceneTitle: 'Sahne',
   sceneReset: 'Sahneyi temizle',
@@ -202,13 +208,7 @@ var TR = {
 
   alphaNone: 'Hiç Biri',
   alphaSquare: 'Kare',
-  alphaSkin: 'Deri',
-
-  envFootPrint: 'Foot Print',
-  envGlazedPatio: 'Glazed Patio',
-  envNicolausChurch: 'St Nicolaus church',
-  envTerrace: 'Terrace',
-  envBryantPark: 'BryantPark'
+  alphaSkin: 'Deri'
 };
 
 export default TR;

@@ -162,6 +162,9 @@ class Picking {
 
     for (var i = 0, nbMeshes = meshes.length; i < nbMeshes; ++i) {
       var mesh = meshes[i];
+      if (!mesh.isVisible())
+        continue;
+
       mat4.invert(_TMP_INV, mesh.getMatrix());
       vec3.transformMat4(_TMP_NEAR_1, vNear, _TMP_INV);
       vec3.transformMat4(_TMP_FAR, vFar, _TMP_INV);
@@ -187,7 +190,6 @@ class Picking {
   }
 
   /** Intersection between a ray the mouse position */
-  // intersectionMouseMesh(mesh, mouseX, mouseY) {
   intersectionMouseMesh(mesh = this._main.getMesh(), mouseX = this._main._mouseX, mouseY = this._main._mouseY) {
     var vNear = this.unproject(mouseX, mouseY, 0.0);
     var vFar = this.unproject(mouseX, mouseY, 0.1);
@@ -434,6 +436,26 @@ class Picking {
 // TODO update i18n strings in a dynamic way
 Picking.INIT_ALPHAS_NAMES = [TR('alphaSquare'), TR('alphaSkin')];
 Picking.INIT_ALPHAS_PATHS = ['square.jpg', 'skin.jpg'];
+
+var readAlphas = function () {
+  // check nodejs
+  if (!window.module || !window.module.exports) return;
+  var fs = eval('require')('fs');
+  var path = eval('require')('path');
+
+  var directoryPath = path.join(window.__filename, '../resources/alpha');
+  fs.readdir(directoryPath, function (err, files) {
+    if (err) return;
+    for (var i = 0; i < files.length; ++i) {
+      var fname = files[i];
+      if (fname == 'square.jpg' || fname == 'skin.jpg') continue;
+      Picking.INIT_ALPHAS_NAMES.push(fname);
+      Picking.INIT_ALPHAS_PATHS.push(fname);
+    }
+  });
+};
+
+readAlphas();
 
 var none = TR('alphaNone');
 Picking.ALPHAS_NAMES = {};

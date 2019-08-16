@@ -20,6 +20,9 @@ mesh.init(); // compute octree/topo/UV, etc...
 mesh.initRender(); // only if gl has been provided
 */
 
+var DEF_ROUGHNESS = 0.18; // 0.18;
+var DEF_METALNESS = 0.08; // 0.08;
+
 class Mesh {
 
   constructor() {
@@ -27,6 +30,7 @@ class Mesh {
     this._meshData = null;
     this._transformData = null;
     this._renderData = null;
+    this._isVisible = true;
   }
 
   static sortFunction(meshA, meshB) {
@@ -40,6 +44,14 @@ class Mesh {
 
   setID(id) {
     this._id = id;
+  }
+
+  isVisible() {
+    return this._isVisible;
+  }
+
+  setVisible(bool) {
+    this._isVisible = bool;
   }
 
   setVertices(vAr) {
@@ -316,7 +328,18 @@ class Mesh {
   }
 
   getSymmetryOrigin() {
-    return this._transformData._center;
+    var orig = vec3.create();
+    var tdata = this._transformData;
+    var offset = tdata._symmetryOffset * this.computeLocalRadius();
+    return vec3.scaleAndAdd(orig, tdata._center, tdata._symmetryNormal, offset);
+  }
+
+  getSymmetryOffset() {
+    return this._transformData._symmetryOffset;
+  }
+
+  setSymmetryOffset(offset) {
+    this._transformData._symmetryOffset = offset;
   }
 
   getSymmetryNormal() {
@@ -432,10 +455,10 @@ class Mesh {
     }
     if (!this._meshData._materialsPBR || this._meshData._materialsPBR.length !== len) {
       var mAr = this._meshData._materialsPBR = new Float32Array(len);
-      for (i = 0; i < len; ++i) {
+      for (i = 0; i < nbVertices; ++i) {
         var j = i * 3;
-        mAr[j] = 0.18;
-        mAr[j + 1] = 0.08;
+        mAr[j] = DEF_ROUGHNESS;
+        mAr[j + 1] = DEF_METALNESS;
         mAr[j + 2] = 1.0;
       }
     }
@@ -1450,10 +1473,13 @@ class Mesh {
     this._transformData._lastComputedDepth = m[2] * cen[0] + m[6] * cen[1] + m[10] * cen[2] + m[14];
   }
 
-  normalizeSize() {
+  computeLocalRadius() {
     var box = this.getLocalBound();
-    var diag = vec3.dist([box[0], box[1], box[2]], [box[3], box[4], box[5]]);
-    var scale = Utils.SCALE / diag;
+    return 0.5 * vec3.dist([box[0], box[1], box[2]], [box[3], box[4], box[5]]);
+  }
+
+  normalizeSize() {
+    var scale = Utils.SCALE / (2.0 * this.computeLocalRadius());
     mat4.scale(this._transformData._matrix, this._transformData._matrix, [scale, scale, scale]);
   }
 
@@ -1838,7 +1864,8 @@ class Mesh {
   }
 
   isUsingTexCoords() {
-    return this._renderData._shaderType === Enums.Shader.UV;
+    var shaderType = this._renderData._shaderType;
+    return shaderType === Enums.Shader.UV || shaderType === Enums.Shader.PAINTUV;
   }
 
   isTransparent() {
@@ -1874,14 +1901,17 @@ class Mesh {
   // RENDER
   /////////
   render(main) {
+    if (!this.isVisible()) return;
     Shader[this.getShaderType()].getOrCreate(this.getGL()).draw(this, main);
   }
 
   renderWireframe(main) {
+    if (!this.isVisible()) return;
     Shader[Enums.Shader.WIREFRAME].getOrCreate(this.getGL()).draw(this, main);
   }
 
   renderFlatColor(main) {
+    if (!this.isVisible()) return;
     Shader[Enums.Shader.FLAT].getOrCreate(this.getGL()).draw(this, main);
   }
 

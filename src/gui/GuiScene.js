@@ -7,8 +7,6 @@ class GuiScene {
   constructor(guiParent, ctrlGui) {
     this._main = ctrlGui._main; // main application
     this._menu = null;
-    this._hideMeshes = [];
-    this._cbToggleShowHide = this.toggleShowHide.bind(this, true);
     this.init(guiParent);
   }
 
@@ -40,7 +38,7 @@ class GuiScene {
     this._ctrlIsolate.setVisibility(false);
     this._ctrlMerge = menu.addButton(TR('sceneMerge'), this, 'merge');
     this._ctrlMerge.setVisibility(false);
-    
+
     menu.addButton(TR('sceneDuplicate'), this, 'duplicateSelection');
     menu.addButton(TR('sceneDelete'), this, 'deleteSelection');
 
@@ -50,11 +48,20 @@ class GuiScene {
     menu.addCheckbox(TR('contourShow'), this._main._showContour, this.onShowContour.bind(this));
     menu.addCheckbox(TR('renderingGrid'), this._main._showGrid, this.onShowGrid.bind(this));
     menu.addCheckbox(TR('renderingSymmetryLine'), ShaderBase.showSymmetryLine, this.onShowSymmetryLine.bind(this));
+    this._ctrlOffSym = menu.addSlider('SymOffset', 0.0, this.onOffsetSymmetry.bind(this), -1.0, 1.0, 0.001);
   }
 
-  clearScene(){
-    if (window.confirm(TR('sceneResetConfirm'))){
+  clearScene() {
+    if (window.confirm(TR('sceneResetConfirm'))) {
       this._main.clearScene();
+    }
+  }
+
+  onOffsetSymmetry(val) {
+    var mesh = this._main.getMesh();
+    if (mesh) {
+      mesh.setSymmetryOffset(val);
+      this._main.render();
     }
   }
 
@@ -62,7 +69,7 @@ class GuiScene {
     this._main.duplicateSelection();
   }
 
-  deleteSelection(){
+  deleteSelection() {
     this._main.deleteCurrentSelection();
   }
 
@@ -126,11 +133,22 @@ class GuiScene {
     this._main.render();
   }
 
+  hasHiddenMeshes() {
+    var meshes = this._main.getMeshes();
+    for (var i = 0; i < meshes.length; ++i) {
+      if (!meshes[i].isVisible()) return true;
+    }
+    return false;
+  }
+
   updateMesh() {
     var nbMeshes = this._main.getMeshes().length;
     var nbSelected = this._main.getSelectedMeshes().length;
-    this._ctrlIsolate.setVisibility(this._hideMeshes.length > 0 || (nbMeshes !== nbSelected && nbSelected >= 1));
+    this._ctrlIsolate.setVisibility(this.hasHiddenMeshes() || (nbMeshes !== nbSelected && nbSelected >= 1));
     this._ctrlMerge.setVisibility(nbSelected > 1);
+
+    var mesh = this._main.getMesh();
+    this._ctrlOffSym.setValue(mesh ? mesh.getSymmetryOffset() : 0);
   }
 
   merge() {
@@ -155,6 +173,20 @@ class GuiScene {
     this.updateMesh();
   }
 
+  setMeshesVisible(meshes, bool) {
+    for (var i = 0; i < meshes.length; ++i) {
+      meshes[i].setVisible(bool);
+    }
+    this._ctrlIsolate.setValue(!bool, true);
+  }
+
+  pushSetMeshesVisible(hideMeshes, bool) {
+    this.setMeshesVisible(hideMeshes, bool);
+    var cbUndo = this.setMeshesVisible.bind(this, hideMeshes, !bool);
+    var cbRedo = this.setMeshesVisible.bind(this, hideMeshes, bool);
+    this._main.getStateManager().pushStateCustom(cbUndo, cbRedo);
+  }
+
   isolate() {
     var main = this._main;
     var selMeshes = main.getSelectedMeshes();
@@ -164,31 +196,28 @@ class GuiScene {
       return;
     }
 
-    var hMeshes = this._hideMeshes;
-    hMeshes.length = 0;
+    var hideMeshes = [];
     for (var i = 0; i < meshes.length; ++i) {
       var id = main.getIndexSelectMesh(meshes[i]);
-      if (id < 0) {
-        hMeshes.push(meshes[i]);
-        meshes.splice(i--, 1);
-      }
+      if (id < 0) hideMeshes.push(meshes[i]);
     }
 
-    main.getStateManager().pushStateRemove(hMeshes.slice());
-    main.getStateManager().pushStateCustom(this._cbToggleShowHide, this._cbToggleShowHide, true);
+    this.pushSetMeshesVisible(hideMeshes, false);
+
     main.render();
   }
 
   showAll() {
     var main = this._main;
     var meshes = main.getMeshes();
-    var hMeshes = this._hideMeshes;
-    for (var i = 0, nbAdd = hMeshes.length; i < nbAdd; ++i) {
-      meshes.push(hMeshes[i]);
+
+    var hideMeshes = [];
+    for (var i = 0; i < meshes.length; ++i) {
+      if (!meshes[i].isVisible()) hideMeshes.push(meshes[i]);
     }
-    main.getStateManager().pushStateAdd(hMeshes.slice());
-    main.getStateManager().pushStateCustom(this._cbToggleShowHide, this._cbToggleShowHide, true);
-    hMeshes.length = 0;
+
+    this.pushSetMeshesVisible(hideMeshes, true);
+
     main.render();
   }
 

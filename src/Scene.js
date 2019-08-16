@@ -24,6 +24,8 @@ class Scene {
   constructor() {
     this._gl = null; // webgl context
 
+    this._cameraSpeed = 0.25;
+
     // cache canvas stuffs
     this._pixelRatio = 1.0;
     this._viewport = document.getElementById('viewport');
@@ -452,9 +454,17 @@ class Scene {
     this.render();
   }
 
+  computeRadiusFromBoundingBox(box) {
+    var dx = box[3] - box[0];
+    var dy = box[4] - box[1];
+    var dz = box[5] - box[2];
+    return 0.5 * Math.sqrt(dx * dx + dy * dy + dz * dz);
+  }
+
   computeBoundingBoxMeshes(meshes) {
     var bound = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
     for (var i = 0, l = meshes.length; i < l; ++i) {
+      if (!meshes[i].isVisible()) continue;
       var bi = meshes[i].computeWorldBound();
       if (bi[0] < bound[0]) bound[0] = bi[0];
       if (bi[1] < bound[1]) bound[1] = bi[1];
@@ -625,8 +635,9 @@ class Scene {
 
   duplicateSelection() {
     var meshes = this._selectMeshes.slice();
+    var mesh = null;
     for (var i = 0; i < meshes.length; ++i) {
-      var mesh = meshes[i];
+      mesh = meshes[i];
       var copy = new MeshStatic(mesh.getGL());
       copy.copyData(mesh);
 

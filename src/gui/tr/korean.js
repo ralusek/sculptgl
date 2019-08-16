@@ -35,6 +35,12 @@ var TR = {
   fileExportPLY: '.ply 파일로 저장하기',
   fileExportSTL: '.stl 파일로 저장하기',
 
+  fileExportTextureTitle: null,
+  fileExportTextureSize: null,
+  fileExportColor: null,
+  fileExportRoughness: null,
+  fileExportMetalness: null,
+
   // scene
   sceneTitle: '장면',
   sceneReset: '모두 없애기',
@@ -202,13 +208,7 @@ var TR = {
 
   alphaNone: null,
   alphaSquare: null,
-  alphaSkin: null,
-
-  envFootPrint: null,
-  envGlazedPatio: null,
-  envNicolausChurch: null,
-  envTerrace: null,
-  envBryantPark: null
+  alphaSkin: null
 };
 
 export default TR;

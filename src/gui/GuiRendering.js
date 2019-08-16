@@ -64,7 +64,8 @@ class GuiRendering {
     // uv texture
     this._ctrlUV = menu.addButton(TR('renderingImportUV'), this, 'importTexture');
 
-    this._ctrlExposure = menu.addSlider(TR('renderingExposure'), 20, this.onExposureChanged.bind(this), 0, 100, 1);
+    this._ctrlExposure = menu.addSlider(TR('renderingExposure'), 1, this.onExposureChanged.bind(this), 0, 5, 0.001);
+    this.onUpdateCtrlExposure();
 
     menu.addTitle(TR('renderingExtra'));
     this._ctrlTransparency = menu.addSlider(TR('renderingTransparency'), 0.0, this.onTransparencyChanged.bind(this), 0, 100, 1);
@@ -93,11 +94,16 @@ class GuiRendering {
 
   onEnvironmentChanged(val) {
     ShaderPBR.idEnv = val;
+    this.onUpdateCtrlExposure();
     this._main.render();
   }
 
+  onUpdateCtrlExposure() {
+    this._ctrlExposure.setValue(ShaderPBR.environments[ShaderPBR.idEnv].exposure);
+  }
+
   onExposureChanged(val) {
-    ShaderPBR.exposure = val / 20;
+    ShaderPBR.exposure = val;
     this._main.render();
   }
 

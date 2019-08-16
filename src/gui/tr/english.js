@@ -35,6 +35,12 @@ var TR = {
   fileExportPLY: 'Save .ply',
   fileExportSTL: 'Save .stl',
 
+  fileExportTextureTitle: 'Export textures',
+  fileExportTextureSize: 'Size',
+  fileExportColor: 'Save diffuse',
+  fileExportRoughness: 'Save roughness',
+  fileExportMetalness: 'Save metalness',
+
   // scene
   sceneTitle: 'Scene',
   sceneReset: 'Clear scene',
@@ -203,12 +209,6 @@ var TR = {
   alphaNone: 'None',
   alphaSquare: 'Square',
   alphaSkin: 'Skin',
-
-  envFootPrint: 'Foot Print',
-  envGlazedPatio: 'Glazed Patio',
-  envNicolausChurch: 'St Nicolaus church',
-  envTerrace: 'Terrace',
-  envBryantPark: 'BryantPark',
 
   remeshTitleMC: 'Voxel remeshing (manifold tris)',
   remeshRemeshMC: 'Remesh',

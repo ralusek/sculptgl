@@ -35,6 +35,12 @@ var TR = {
   fileExportPLY: 'Сохранить .ply',
   fileExportSTL: 'Сохранить .stl',
 
+  fileExportTextureTitle: null,
+  fileExportTextureSize: null,
+  fileExportColor: null,
+  fileExportRoughness: null,
+  fileExportMetalness: null,
+
   // scene
   sceneTitle: 'Сцена',
   sceneReset: 'Очистить сцену',
@@ -202,13 +208,7 @@ var TR = {
 
   alphaNone: 'Нет',
   alphaSquare: 'Квадрат',
-  alphaSkin: 'Кожа',
-
-  envFootPrint: 'Китайский театр Граумана',
-  envGlazedPatio: 'Застекленный дворик',
-  envNicolausChurch: 'Церковь Святого Николая',
-  envTerrace: 'Терраса',
-  envBryantPark: 'Бра́йант-парк'
+  alphaSkin: 'Кожа'
 };
 
 export default TR;

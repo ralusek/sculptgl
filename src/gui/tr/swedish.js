@@ -35,6 +35,12 @@ var TR = {
   fileExportPLY: 'Spara .ply',
   fileExportSTL: 'Spara .stl',
 
+  fileExportTextureTitle: null,
+  fileExportTextureSize: null,
+  fileExportColor: null,
+  fileExportRoughness: null,
+  fileExportMetalness: null,
+
   // scene
   sceneTitle: 'Scen',
   sceneReset: 'Rensa scen',
@@ -202,13 +208,7 @@ var TR = {
 
   alphaNone: 'Ingen',
   alphaSquare: 'Fyrkant',
-  alphaSkin: 'Hud',
-
-  envFootPrint: 'Fotavtryck',
-  envGlazedPatio: 'Inglasad uteplats',
-  envNicolausChurch: 'S:t Nikolauskyrkan',
-  envTerrace: 'Terrass',
-  envBryantPark: 'Bryant Park'
+  alphaSkin: 'Hud'
 };
 
 export default TR;
